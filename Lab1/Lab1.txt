@@ -1,0 +1,56 @@
+SELECT 
+    product_category,
+    YEAR(shipment.departure_date) AS year,
+    MONTH(shipment.departure_date) AS month,
+    AVG(shipment.income) AS average_daily_income,
+    SUM(shipment.income) AS total_monthly_income
+FROM 
+    shipment
+JOIN 
+    route ON shipment.route_id = route.id
+JOIN 
+    location departure ON route.departure_office_id = departure.id
+JOIN 
+    location destination ON route.destination_office_id = destination.id
+WHERE 
+    departure.country = 'Україна' AND destination.country = 'Україна'
+GROUP BY 
+    product_category, YEAR(shipment.departure_date), MONTH(shipment.departure_date);
+
+SELECT 
+    departure.region,
+    destination.region,
+    YEAR(shipment.departure_date) AS year,
+    MONTH(shipment.departure_date) AS month,
+    AVG(shipment.income / shipment.weight) AS average_income_per_weight,
+    AVG(shipment.income) / DAY(LAST_DAY(shipment.departure_date)) AS average_daily_income
+FROM 
+    shipment
+JOIN 
+    route ON shipment.route_id = route.id
+JOIN 
+    location departure ON route.departure_office_id = departure.id
+JOIN 
+    location destination ON route.destination_office_id = destination.id
+WHERE 
+    YEAR(shipment.departure_date) = 2022
+GROUP BY 
+    departure.region, destination.region, YEAR(shipment.departure_date), MONTH(shipment.departure_date);
+
+SELECT 
+    departure.district,
+    shipment.transportation_type,
+    YEAR(shipment.departure_date) AS year,
+    MONTH(shipment.departure_date) AS month,
+    SUM(shipment.income) AS total_income,
+    SUM(shipment.volume) AS total_volume
+FROM 
+    shipment
+JOIN 
+    route ON shipment.route_id = route.id
+JOIN 
+    location departure ON route.departure_office_id = departure.id
+GROUP BY 
+    departure.district, shipment.transportation_type, YEAR(shipment.departure_date), MONTH(shipment.departure_date)
+ORDER BY 
+    total_volume DESC;
